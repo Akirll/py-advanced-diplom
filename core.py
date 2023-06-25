@@ -1,14 +1,11 @@
 from datetime import datetime 
-
 import vk_api
 
-from config import acces_token
-
-
+from config import access_token
 
 class VkTools():
-    def __init__(self, acces_token):
-       self.api = vk_api.VkApi(token=acces_token)
+    def __init__(self, access_token):
+       self.api = vk_api.VkApi(token=access_token)
 
     def get_profile_info(self, user_id):
 
@@ -26,15 +23,15 @@ class VkTools():
                      }
         return user_info
     
-    def serch_users(self, params):
+    def search_users(self, params):
 
         sex = 1 if params['sex'] == 2 else 2
         city = params['city']
-        curent_year = datetime.now().year
+        current_year = datetime.now().year
         user_year = int(params['bdate'].split('.')[2])
-        age = curent_year - user_year
-        age_from = age - 5
-        age_to = age + 5
+        age = current_year - user_year
+        age_from = age - 3
+        age_to = age + 3
 
         users = self.api.method('users.search',
                                 {'count': 10,
@@ -91,8 +88,10 @@ class VkTools():
 
 
 if __name__ == '__main__':
-    bot = VkTools(acces_token)
+    bot = VkTools(access_token)
     params = bot.get_profile_info(789657038)
-    users = bot.serch_users(params)
-    print(bot.get_photos(users[2]['id']))
+    users = bot.search_users(params)
+    #print(params)
+    #print(bot.get_photos(users[2]['id']))
+    print(users)
 
