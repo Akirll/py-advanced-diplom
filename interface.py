@@ -6,6 +6,8 @@ from vk_api.utils import get_random_id
 from config import community_token, access_token
 from core import VkTools
 
+from data_store import db
+
 class BotInterface():
 
     def __init__(self,comunity_token, access_token):
@@ -35,20 +37,25 @@ class BotInterface():
                     self.params = self.api.get_profile_info(event.user_id)
                     self.message_send(event.user_id, f'здравствуй {self.params["name"]}')
                 elif command == 'поиск':
-                    users = self.api.serch_users(self.params)
-                    user = users.pop()
+                    self.params = self.api.get_profile_info(event.user_id)
+                    users = self.api.search_users(self.params)
+                    
                     #здесь логика дял проверки бд
+                    user = users.pop()
+                    while db.check_user(event.user_id,user['id']):
+                       user = users.pop() 
                     photos_user = self.api.get_photos(user['id'])                  
                     
                     attachment = ''
                     for num, photo in enumerate(photos_user):
-                        attachment += f'photo{photo["owner_id"]}_{photo["id"]}'
+                        attachment += f',photo{photo["owner_id"]}_{photo["id"]}'
                         if num == 2:
                             break
                     self.message_send(event.user_id,
-                                      f'Встречайте {user["name"]}',
-                                      attachment=attachment
-                                      ) 
+                                    f'Встречайте {user["name"]} vk.com/id{user["id"]}',
+                                    attachment=attachment
+                                    )
+                    db.add_user(event.user_id,user['id']) 
                     #здесь логика для добавленяи в бд
                 elif command == 'пока':
                     self.message_send(event.user_id, 'пока')

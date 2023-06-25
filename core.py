@@ -24,9 +24,11 @@ class VkTools():
         return user_info
     
     def search_users(self, params):
-
-        sex = 1 if params['sex'] == 2 else 2
         city = params['city']
+        sex = 1 if params['sex'] == 2 else 2
+        #в краснодаре ищем только девочек 
+        if city == 72:
+            sex = 1 
         current_year = datetime.now().year
         user_year = int(params['bdate'].split('.')[2])
         age = current_year - user_year
@@ -34,7 +36,7 @@ class VkTools():
         age_to = age + 3
 
         users = self.api.method('users.search',
-                                {'count': 10,
+                                {'count': 100,
                                  'offset': 0,
                                  'age_from': age_from,
                                  'age_to': age_to,
@@ -52,12 +54,11 @@ class VkTools():
         res = []
 
         for user in users:
-            if user['is_closed'] == False:
+            if user['is_closed'] == False: #and user['id'] ==  27315722: 
                 res.append({'id' : user['id'],
                             'name': user['first_name'] + ' ' + user['last_name']
                            }
                            )
-        
         return res
 
     def get_photos(self, user_id):
@@ -89,9 +90,9 @@ class VkTools():
 
 if __name__ == '__main__':
     bot = VkTools(access_token)
-    params = bot.get_profile_info(789657038)
+    user_id = 17505384
+    params = bot.get_profile_info(user_id)
     users = bot.search_users(params)
     #print(params)
     #print(bot.get_photos(users[2]['id']))
     print(users)
-
