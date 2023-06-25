@@ -52,7 +52,7 @@ class BotInterface():
                         if num == 2:
                             break
                     self.message_send(event.user_id,
-                                    f'Встречайте {user["name"]} vk.com/id{user["id"]}',
+                                    f' {user["name"]} vk.com/id{user["id"]}',
                                     attachment=attachment
                                     )
                     db.add_user(event.user_id,user['id']) 
