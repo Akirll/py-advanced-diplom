@@ -28,18 +28,35 @@ class BotInterface():
     def event_handler(self):
         longpoll = VkLongPoll(self.interface)
 
-        
+        waiting_command = False
         for event in longpoll.listen():
-            if event.type == VkEventType.MESSAGE_NEW and event.to_me:
+            if event.type == VkEventType.MESSAGE_NEW and event.to_me and not waiting_command:
                 command = event.text.lower()
 
                 if command == 'привет':
                     self.params = self.api.get_profile_info(event.user_id)
                     self.message_send(event.user_id, f'здравствуй {self.params["name"]}')
+
+                    if not 'age' in self.params:
+                        self.message_send(event.user_id,
+                                    f' Дата рождения не найдена в профиле. Ведите дату рождения',
+                                    )   
+                        if event.type == VkEventType.MESSAGE_NEW and event.to_me:
+                            self.params['age'] = event.text
+                    if not 'sex' in self.params:
+                        self.message_send(event.user_id,
+                                    f'Пол не указан в профиле. Ведите М или Ж',
+                                    )
+                        if event.type == VkEventType.MESSAGE_NEW and event.to_me:
+                            self.params['sex'] = 1 if event.text.lower() == 'Ж' else 2;  
+                    if not 'hometown' in self.params:
+                        self.message_send(event.user_id,
+                                    f'Город не указан в профиле. Введите город',
+                                    )
+                        if event.type == VkEventType.MESSAGE_NEW and event.to_me:
+                            self.params['hometown'] = event.text    
                 elif command == 'поиск':
-                    self.params = self.api.get_profile_info(event.user_id)
                     users = self.api.search_users(self.params)
-                    
                     #здесь логика дял проверки бд
                     user = users.pop()
                     while db.check_user(event.user_id,user['id']):

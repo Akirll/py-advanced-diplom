@@ -11,27 +11,26 @@ class VkTools():
 
         info, = self.api.method('users.get',
                             {'user_id': user_id,
-                            'fields': 'city,bdate,sex,relation,home_town' 
+                            'fields': 'city,bdate,sex,relation,home_town,city' 
                             }
                             )
+        bdate = info['bdate'] if 'bdate' in info else None
+        if bdate:
+            current_year = datetime.now().year
+            user_year = int(info['bdate'].split('.')[2])
+            age = current_year - user_year
         user_info = {'name': info['first_name'] + ' '+ info['last_name'],
                      'id':  info['id'],
-                     'bdate': info['bdate'] if 'bdate' in info else None,
-                     'home_town': info['home_town'],
-                     'sex': info['sex'],
-                     'city': info['city']['id']
+                     'age': age if 'bdate' in info else None,
+                     'hometown': info['city']['title'] if 'city' in info else None,
+                     'sex': info['sex'] if 'sex' in info else None,
                      }
         return user_info
     
     def search_users(self, params):
-        city = params['city']
+        hometown = params['hometown']
+        age = params['age']
         sex = 1 if params['sex'] == 2 else 2
-        #в краснодаре ищем только девочек 
-        if city == 72:
-            sex = 1 
-        current_year = datetime.now().year
-        user_year = int(params['bdate'].split('.')[2])
-        age = current_year - user_year
         age_from = age - 3
         age_to = age + 3
 
@@ -41,7 +40,7 @@ class VkTools():
                                  'age_from': age_from,
                                  'age_to': age_to,
                                  'sex': sex,
-                                 'city': city,
+                                 'hometown': hometown,
                                  'status': 6,
                                  'is_closed': False
                                 }
@@ -92,7 +91,7 @@ if __name__ == '__main__':
     bot = VkTools(access_token)
     user_id = 17505384
     params = bot.get_profile_info(user_id)
-    users = bot.search_users(params)
-    #print(params)
+    print(params)
     #print(bot.get_photos(users[2]['id']))
-    print(users)
+    #users = bot.search_users(params)
+    #print(params)
