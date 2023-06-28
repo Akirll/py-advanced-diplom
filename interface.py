@@ -28,33 +28,48 @@ class BotInterface():
     def event_handler(self):
         longpoll = VkLongPoll(self.interface)
 
-        waiting_command = False
         for event in longpoll.listen():
-            if event.type == VkEventType.MESSAGE_NEW and event.to_me and not waiting_command:
+            if event.type == VkEventType.MESSAGE_NEW and event.to_me:
                 command = event.text.lower()
 
                 if command == 'привет':
                     self.params = self.api.get_profile_info(event.user_id)
                     self.message_send(event.user_id, f'здравствуй {self.params["name"]}')
-
+                    del self.params['age']
                     if not 'age' in self.params:
                         self.message_send(event.user_id,
-                                    f' Дата рождения не найдена в профиле. Ведите дату рождения',
-                                    )   
-                        if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-                            self.params['age'] = event.text
+                                        f' Дата рождения не найдена в профиле. Ведите возраст',
+                                        )   
+                        for event in longpoll.listen():
+                            if event.type == VkEventType.MESSAGE_NEW and event.to_me:
+                                self.params['age'] = int(event.text)
+                                self.message_send(event.user_id,
+                                    f'Принято',
+                                    ) 
+                                break
                     if not 'sex' in self.params:
                         self.message_send(event.user_id,
                                     f'Пол не указан в профиле. Ведите М или Ж',
                                     )
-                        if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-                            self.params['sex'] = 1 if event.text.lower() == 'Ж' else 2;  
+                        for event in longpoll.listen():
+                            if event.type == VkEventType.MESSAGE_NEW and event.to_me:
+                                self.params['sex'] = 1 if event.text.lower() == 'Ж' else 2;  
+                                self.message_send(event.user_id,
+                                    f'Принято',
+                                    ) 
+                                break
+                    del self.params['hometown']
                     if not 'hometown' in self.params:
                         self.message_send(event.user_id,
                                     f'Город не указан в профиле. Введите город',
                                     )
-                        if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-                            self.params['hometown'] = event.text    
+                        for event in longpoll.listen():
+                            if event.type == VkEventType.MESSAGE_NEW and event.to_me:
+                                self.params['hometown'] = event.text   
+                                self.message_send(event.user_id,
+                                    f'Ваш город - Краснодар',
+                                    ) 
+                                break
                 elif command == 'поиск':
                     users = self.api.search_users(self.params)
                     #здесь логика дял проверки бд
