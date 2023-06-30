@@ -27,7 +27,7 @@ class VkTools():
                      }
         return user_info
     
-    def search_users(self, params):
+    def search_users(self, params,offset):
         hometown = params['hometown']
         age = params['age']
         sex = 1 if params['sex'] == 2 else 2
@@ -35,8 +35,8 @@ class VkTools():
         age_to = age + 3
 
         users = self.api.method('users.search',
-                                {'count': 100,
-                                 'offset': 0,
+                                {'count': 10,
+                                 'offset': offset,
                                  'age_from': age_from,
                                  'age_to': age_to,
                                  'sex': sex,
@@ -53,7 +53,7 @@ class VkTools():
         res = []
 
         for user in users:
-            if user['is_closed'] == False: #and user['id'] ==  27315722: 
+            if user['is_closed'] == False:
                 res.append({'id' : user['id'],
                             'name': user['first_name'] + ' ' + user['last_name']
                            }
