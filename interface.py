@@ -83,7 +83,7 @@ class BotInterface():
                             f'Принято',
                             ) 
                         
-                    del self.params['hometown']
+                    #del self.params['hometown']
                     if not 'hometown' in self.params:
                         self.message_send(event.user_id,
                                     f'Город не указан в профиле. Введите город',
